@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BengaluruPrice — Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --maroon-dark:  #1A0808;
+      --maroon-mid:   #4A1818;
+      --rosy:         #D3968C;
+      --rosy-light:   #ECC4BC;
+      --tan:          #F7F4D5;
+      --white:        #ffffff;
+      --border:       rgba(255,255,255,0.08);
+      --card:         rgba(26,8,8,0.55);
+    }
+
+    body {
+      font-family:'Inter', sans-serif;
+      color: var(--white);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background: radial-gradient(ellipse at top left, #4A1818 0%, #1A0808 50%, #0f0404 100%);
+    }
+
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(ellipse at 85% 85%, rgba(211,150,140,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 10% 10%, rgba(236,196,188,0.06) 0%, transparent 45%);
+      pointer-events:none;
+    }
+
+    /* NAV */
+    nav {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      width:100%;
+      max-width:900px;
+      margin-bottom:32px;
+      position:relative;
+      z-index:1;
+    }
+
+    .nav-logo {
+      font-family:'Cormorant Garamond', serif;
+      font-size:20px;
+      font-weight:700;
+      color:var(--white);
+      text-decoration:none;
+    }
+
+    .nav-logo span { color:var(--rosy-light); }
+
+    .back-btn {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      color:rgba(255,255,255,0.45);
+      text-decoration:none;
+      transition:color 0.2s;
+    }
+
+    .back-btn:hover { color:var(--rosy-light); }
+
+    /* WRAPPER */
+    .wrapper {
+      width:100%;
+      max-width:900px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      box-shadow:0 40px 80px rgba(0,0,0,0.5);
+      position:relative;
+      z-index:1;
+    }
+
+    /* LEFT */
+    .left {
+      background: var(--card);
+      padding:48px 40px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      border-right:1px solid var(--border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .eyebrow {
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--rosy-light);
+      margin-bottom:16px;
+    }
+
+    .left h1 {
+      font-family:'Cormorant Garamond', serif;
+      font-size:36px;
+      font-weight:700;
+      line-height:1.2;
+      color:var(--white);
+      margin-bottom:14px;
+    }
+
+    .left h1 span { color:var(--rosy-light); }
+
+    .left p {
+      font-size:13px;
+      color:rgba(255,255,255,0.5);
+      line-height:1.75;
+      margin-bottom:40px;
+    }
+
+    .divider {
+      width:36px;
+      height:2px;
+      background:var(--rosy);
+      border-radius:2px;
+      margin-bottom:20px;
+    }
+
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    .stat {
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+    }
+
+    .stat .val {
+      font-size:22px;
+      font-weight:700;
+      color:var(--white);
+    }
+
+    .stat .val em {
+      font-style:normal;
+      font-size:13px;
+      color:var(--rosy-light);
+      font-family:'Inter',sans-serif;
+      margin-left:2px;
+    }
+
+    .stat .lbl {
+      font-size:11px;
+      color:rgba(255,255,255,0.35);
+      margin-top:5px;
+    }
+
+    /* RIGHT */
+    .right {
+      background: rgba(20,8,8,0.6);
+      padding:48px 40px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .right h2 {
+      font-family:'Cormorant Garamond', serif;
+      font-size:22px;
+      font-weight:600;
+      color:var(--white);
+    }
+
+    .hint {
+      font-size:11px;
+      color:rgba(255,255,255,0.35);
+      margin-top:2px;
+    }
+
+    .field { display:flex; flex-direction:column; gap:7px; }
+
+    label {
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:var(--rosy-light);
+    }
+
+    select, input[type="number"] {
+      background:rgba(26,8,8,0.7);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:11px 14px;
+      font-size:14px;
+      color:var(--white);
+      font-family:'Inter',sans-serif;
+      outline:none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width:100%;
+      appearance:none;
+      -webkit-appearance:none;
+    }
+
+    select {
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ECC4BC' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 14px center;
+      background-color:rgba(26,8,8,0.7);
+      padding-right:36px;
+    }
+
+    select:focus, input:focus {
+      border-color:rgba(236,196,188,0.4);
+      box-shadow:0 0 0 3px rgba(211,150,140,0.1);
+    }
+
+    input::placeholder { color:rgba(255,255,255,0.2); }
+    select option { background:#1A0808; color:#fff; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    .btn {
+      padding:14px;
+      background:var(--white);
+      color:var(--maroon-dark);
+      border:none;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:700;
+      font-family:'Inter',sans-serif;
+      cursor:pointer;
+      letter-spacing:0.3px;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      margin-top:4px;
+    }
+
+    .btn:hover  { background:var(--tan); box-shadow:0 6px 28px rgba(0,0,0,0.4); }
+    .btn:active { transform:scale(0.98); }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+    /* RESULT */
+    .result {
+      background:rgba(211,150,140,0.08);
+      border:1px solid rgba(211,150,140,0.25);
+      border-radius:14px;
+      padding:20px 22px;
+      display:none;
+      animation:fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .rlabel {
+      font-size:10px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--rosy-light);
+      font-weight:600;
+    }
+
+    .rprice {
+      font-family:'Cormorant Garamond', serif;
+      font-size:40px;
+      font-weight:700;
+      color:var(--white);
+      margin:6px 0 4px;
+    }
+
+    .rsub { font-size:11px; color:rgba(255,255,255,0.35); }
+
+    .error {
+      background:rgba(255,100,100,0.08);
+      border:1px solid rgba(255,100,100,0.2);
+      border-radius:10px;
+      padding:12px 16px;
+      font-size:12px;
+      color:#ff9999;
+      display:none;
+    }
+
+    @media(max-width:640px) {
+      .wrapper { grid-template-columns:1fr; }
+      .left, .right { padding:36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="/">Bengaluru<span>Price</span></a>
+    <a class="back-btn" href="/">← Back to Home</a>
+  </nav>
+
+  <div class="wrapper">
+
+    <!-- LEFT -->
+    <div class="left">
+      <div>
+        <div class="eyebrow">Bengaluru · ML Powered</div>
+        <h1>Know your home's true <span>worth.</span></h1>
+        <div class="divider"></div>
+        <p>Enter property details and our Random Forest model estimates a fair market price — transparently, without a broker's bias.</p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="val">9,243 <em>rows</em></div>
+          <div class="lbl">Training samples</div>
+        </div>
+        <div class="stat">
+          <div class="val">0.826 <em>R²</em></div>
+          <div class="lbl">Model accuracy</div>
+        </div>
+        <div class="stat">
+          <div class="val">144 <em>zones</em></div>
+          <div class="lbl">Localities</div>
+        </div>
+        <div class="stat">
+          <div class="val">±18 <em>L</em></div>
+          <div class="lbl">Avg error</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div>
+        <h2>Property details</h2>
+        <div class="hint">All fields required for best accuracy</div>
+      </div>
+
+      <div class="field">
+        <label>Locality</label>
+        <select id="location">
+          <option value="">Select a locality</option>
+          {% for loc in locations %}
+          <option value="{{ loc }}">{{ loc }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Total area (sq ft)</label>
+        <input type="number" id="total_sqft" placeholder="e.g. 1200" min="300" max="20000"/>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>BHK</label>
+          <select id="bhk">
+            <option value="">Select</option>
+            <option value="1">1 BHK</option>
+            <option value="2">2 BHK</option>
+            <option value="3">3 BHK</option>
+            <option value="4">4 BHK</option>
+            <option value="5">5 BHK</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Bathrooms</label>
+          <select id="bath">
+            <option value="">Select</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Balconies</label>
+        <select id="balcony">
+          <option value="">Select</option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <button class="btn" id="btn" onclick="predict()">Estimate Price</button>
+
+      <div class="result" id="result">
+        <div class="rlabel">Estimated market price</div>
+        <div class="rprice" id="rprice">—</div>
+        <div class="rsub">Based on Bengaluru market data &nbsp;·&nbsp; ±₹18–25L avg error</div>
+      </div>
+
+      <div class="error" id="error"></div>
+    </div>
+  </div>
+
+  <script>
+    async function predict() {
+      const location   = document.getElementById('location').value;
+      const total_sqft = document.getElementById('total_sqft').value;
+      const bhk        = document.getElementById('bhk').value;
+      const bath       = document.getElementById('bath').value;
+      const balcony    = document.getElementById('balcony').value;
+
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('error').style.display  = 'none';
+
+      if (!location || !total_sqft || !bhk || !bath || !balcony) {
+        showError('Please fill in all fields before predicting.'); return;
+      }
+
+      const btn = document.getElementById('btn');
+      btn.textContent = 'Estimating...';
+      btn.disabled = true;
+
+      const fd = new FormData();
+      fd.append('location',   location);
+      fd.append('total_sqft', total_sqft);
+      fd.append('bhk',        bhk);
+      fd.append('bath',       bath);
+      fd.append('balcony',    balcony);
+
+      try {
+        const res  = await fetch('/predict', { method:'POST', body:fd });
+        const data = await res.json();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          document.getElementById('rprice').textContent = '₹' + data.price + ' Lakhs';
+          document.getElementById('result').style.display = 'block';
+        }
+      } catch(e) {
+        showError('Cannot reach server. Make sure Flask is running.');
+      } finally {
+        btn.textContent = 'Estimate Price';
+        btn.disabled = false;
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
