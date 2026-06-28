@@ -12,8 +12,10 @@ In India, buying a home means trusting a broker whose income depends on inflatin
 ---
 
 ## Live Demo
+🌐 **[https://bengaluru-house-price-predictor-tb3y.onrender.com/](https://bengaluru-house-price-predictor-tb3y.onrender.com/)**
 
-> Run locally — see setup instructions below.
+> Note: App is hosted on Render free tier — may take 30–60 seconds 
+> to load on first visit (cold start).
 
 ---
 
